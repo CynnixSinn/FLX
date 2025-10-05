@@ -1,3 +1,4 @@
+![1000042233](https://github.com/user-attachments/assets/0dc96f68-7b36-4f73-b51e-233cc36c04f4)
 # FLX - Workflow Automation
 
 FLX is a full-stack workflow automation platform that allows users to create, manage, and execute complex workflows through an intuitive visual interface. Built with React/TypeScript on the frontend and Node.js/Express on the backend, FLX provides a comprehensive solution for automating business processes.
