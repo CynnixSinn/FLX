@@ -1,0 +1,82 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  workflows    Workflow[]
+  apiKey       String?  @unique
+
+  @@map("users")
+}
+
+model Workflow {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  nodes       Json     // Store nodes as JSON
+  connections Json?    // Store connections as JSON
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  status      WorkflowStatus @default(DRAFT)
+  version     String   @default("1.0.0")
+  userId      String
+  executions  Execution[]
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("workflows")
+}
+
+model Execution {
+  id          String        @id @default(cuid())
+  workflowId  String
+  status      ExecutionStatus @default(PENDING)
+  input       Json?
+  output      Json?
+  error       String?
+  startedAt   DateTime      @default(now())
+  completedAt DateTime?
+  workflow    Workflow      @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+  logs        ExecutionLog[]
+
+  @@map("executions")
+}
+
+model ExecutionLog {
+  id          String   @id @default(cuid())
+  executionId String
+  nodeId      String
+  status      ExecutionStatus
+  input       Json?
+  output      Json?
+  error       String?
+  timestamp   DateTime @default(now())
+  execution   Execution @relation(fields: [executionId], references: [id], onDelete: Cascade)
+
+  @@map("execution_logs")
+}
+
+enum WorkflowStatus {
+  DRAFT
+  ACTIVE
+  INACTIVE
+}
+
+enum ExecutionStatus {
+  PENDING
+  RUNNING
+  SUCCESS
+  ERROR
+}
